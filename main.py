@@ -340,6 +340,7 @@ def run(account_index):
    
 def main():
     for account_index in range(RUN_ACCOUNT_COUNT):
+        print("操作账户index:" + str(account_index))
         for i in range(ACCOUNT_RUN_COUNT):
             run(account_index)
             # try:
@@ -356,5 +357,4 @@ def main():
 
     print("脚本执行完成，剩余LUNA将在account.json最后一个账号，由于跨链需要时间，请耐心等待！")
 main()
-
 
