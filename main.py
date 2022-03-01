@@ -125,6 +125,7 @@ def send_luna(sender_key, to_address):
     )
 
     # 广播交易
+    print("等待交易打包...")
     result = terra.tx.broadcast(tx)
     if result.code == 0:
         print("交易成功")
