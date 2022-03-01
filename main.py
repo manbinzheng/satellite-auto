@@ -90,10 +90,19 @@ def send_luna(sender_key, to_address):
 
     # 获取余额
     luna_balance = 0
-    balance_info = terra.bank.balance(sender.key.acc_address)
-    if len(balance_info[0]) > 0 and balance_info[0].get("uluna") != None:
-        luna_balance = (int)(balance_info[0].get("uluna").amount)
-        print(luna_balance)
+    while(1):
+        balance_info = terra.bank.balance(sender.key.acc_address)
+        if len(balance_info[0]) > 0 and balance_info[0].get("uluna") != None:
+            current_luna_balance = (int)(balance_info[0].get("uluna").amount)
+            print(current_luna_balance)
+            if luna_balance == 0:
+                luna_balance = current_luna_balance
+            elif current_luna_balance > luna_balance:
+                print("luna已到账")
+                break
+            else:
+                print("luna未到账, 10秒后重试")
+                sleep(10)
         
     if luna_balance < 500000:
         print("Terra 账户luna余额不足")
