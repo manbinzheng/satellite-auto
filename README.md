@@ -17,7 +17,7 @@
 ### 脚本运行逻辑
 - 由Terra账户助记词生成指定个数的账户。
 从第一个Terra账户转0.5LUNA至Polygon账户（Satellite要求Terra跨链转出至少0.5LUNA），再把Polygon到账的LUNA转回该Terra账户。
-然后把该Terra账户的所有LUNA转入第二个Terra账户，再完成一次与Polygon的跨链操作。
+然后把该Terra账户的所有LUNA转入第二个Terra账户，再完成一次与Polygon的跨链操作，操作完成会将账号index和私钥记录到目录下account.json文件中。
 以此循环至账户内余额小于0.5LUNA或者gas费不足。
 - 注：跨链操作除了gas费损耗，还有一定的本金损耗。<br/>
 	笔者测试损耗结果如下：<br/>
