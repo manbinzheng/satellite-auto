@@ -6,7 +6,7 @@
 	>python 3.8.0</br>
 	 pip 19.2.3
 - #### 账户准备
-	>Terra账户助记词1个</br>
+	>Terra账户助记词1个。</br>
 	 Polygon账户私钥1个。
 - #### 资金准备
 	>Terra默认账户中需要至少0.55个LUNA（每次Terra跨链转出需要至少0.5个LUNA，剩余的充当手续费）</br>
