@@ -346,7 +346,7 @@ def main():
                 
             # except Exception as e:
             #     print(repr(e))
-
+    print("脚本执行完成，剩余LUNA将在account.json最后一个账号，由于跨链需要时间，请耐心等待！")
 main()
 
 
