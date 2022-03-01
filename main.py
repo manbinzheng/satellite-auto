@@ -300,13 +300,16 @@ def write(index,account):
     with open("account.json","w") as f:
         json.dump(load_dict,f)
 
-
-
 def run(account_index):
     sender_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account=0, index=account_index)
+
+    # 判断是否首个账号，如果不是，就从上一个账号转钱到当前账号操作
     if account_index > 0:
         last_sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = account_index-1)
         send_luna(last_sender_key, sender_key.acc_address)
+
+    # 从terra转币到polygon
+    to_polygon_ret = None    
     while(1):
         to_polygon_ret = send_luna_from_terra_to_polygon(sender_key)
         if to_polygon_ret == -1: # 未到账，重试
@@ -314,6 +317,8 @@ def run(account_index):
             sleep(10)
             continue
         break
+
+    # 从polygon转币到terra
     if to_polygon_ret != None and to_polygon_ret != -1:
         while(1):
             to_terra_ret = send_luna_from_polygon_to_terra(sender_key.acc_address)
@@ -322,7 +327,7 @@ def run(account_index):
                 sleep(10)
                 continue
             break
-
+    
    
 def main():
     for account_index in range(RUN_ACCOUNT_COUNT):
@@ -333,6 +338,6 @@ def main():
             # except Exception as e:
             #     print(repr(e))
 
-# main()
+main()
 
 
