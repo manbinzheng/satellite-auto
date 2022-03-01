@@ -1,3 +1,4 @@
+import os
 from time import sleep
 import cfscrape
 from eth_account.messages import encode_defunct
@@ -306,4 +307,6 @@ def main():
             # except Exception as e:
             #     print(repr(e))
 
-main()
+# main()
+
+
