@@ -114,7 +114,7 @@ def send_luna(sender_key, to_address):
     msg = MsgSend(
         from_address = sender.key.acc_address,
         to_address = to_address,
-        amount = Coins(str(luna_balance) + "uluna")
+        amount = Coins(str(luna_balance-2250) + "uluna")
     )
     
     # 创建并签名交易
