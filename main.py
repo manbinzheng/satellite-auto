@@ -346,6 +346,14 @@ def main():
                 
             # except Exception as e:
             #     print(repr(e))
+
+    # 将最后一个账户的余额转回第一个账户
+    print("开始将余额转回第一个账号...")
+    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = RUN_ACCOUNT_COUNT - 1)
+    first_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = 0)
+    send_luna(sender_key, first_key.acc_address)
+    print("转账成功")
+
     print("脚本执行完成，剩余LUNA将在account.json最后一个账号，由于跨链需要时间，请耐心等待！")
 main()
 
