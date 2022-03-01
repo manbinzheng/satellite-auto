@@ -286,6 +286,22 @@ def send_luna_from_polygon_to_terra(to_address):
         print("交易失败，点击查看 https://polygonscan.com/tx/" + tx_hash.hex())
         return
 
+
+"""
+    将执行成功的账号记录到account.json文件下
+"""
+def write(index,account):
+    file_name = "account.json"
+    load_dict = []
+    if os.path.exists(file_name):
+        with open(file_name,'r') as load_f:
+            load_dict = json.load(load_f)
+    load_dict.append({'index':index,'account':account})
+    with open("account.json","w") as f:
+        json.dump(load_dict,f)
+
+
+
 def run(account_index):
     sender_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account=0, index=account_index)
     if account_index > 0:
