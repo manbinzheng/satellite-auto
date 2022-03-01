@@ -319,6 +319,7 @@ def run(account_index):
         break
 
     # 从polygon转币到terra
+    to_terra_ret = None
     if to_polygon_ret != None and to_polygon_ret != -1:
         while(1):
             to_terra_ret = send_luna_from_polygon_to_terra(sender_key.acc_address)
@@ -327,6 +328,9 @@ def run(account_index):
                 sleep(10)
                 continue
             break
+    
+    if to_terra_ret != None:
+        write(account_index, sender_key.private_key.hex())
     
    
 def main():
