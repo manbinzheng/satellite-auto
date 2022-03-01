@@ -99,6 +99,7 @@ def send_luna(sender_key, to_address):
             if luna_balance == 0:
                 luna_balance = current_luna_balance
             elif current_luna_balance > luna_balance:
+                luna_balance = current_luna_balance
                 print("luna已到账")
                 break
             else:
@@ -106,7 +107,7 @@ def send_luna(sender_key, to_address):
                 sleep(10)
         
     if luna_balance < 500000:
-        print("Terra 账户luna余额不足")
+        print("Terra 账户luna尚未到账")
         return -1
 
     # 普通交易
@@ -305,10 +306,13 @@ def run(account_index):
 
     # 判断是否首个账号，如果不是，就从上一个账号转钱到当前账号操作
     if account_index > 0:
+        print("开始从上一个账号转账到当前账号...")
         last_sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = account_index-1)
         send_luna(last_sender_key, sender_key.acc_address)
+        print("从上一个账号转账成功")
 
     # 从terra转币到polygon
+    print("开始从terra转币到polygon")
     to_polygon_ret = None    
     while(1):
         to_polygon_ret = send_luna_from_terra_to_polygon(sender_key)
@@ -319,6 +323,7 @@ def run(account_index):
         break
 
     # 从polygon转币到terra
+    print("开始从polygon转币到terra")
     to_terra_ret = None
     if to_polygon_ret != None and to_polygon_ret != -1:
         while(1):
