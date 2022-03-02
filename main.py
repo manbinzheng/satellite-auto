@@ -35,8 +35,6 @@ POLYGON_RPC = "https://matic-mainnet.chainstacklabs.com"
 # polygon上satellite luna跨链交易合约
 POLYGON_SATELLITE_CONTRACT = "0xa17927fb75e9faea10c08259902d0468b3dead88" 
 
-
-
 # polygon 账户private key
 POLYGON_ACCOUNT_PRIVATE_KEY = ""
 # terra 账户助记词
