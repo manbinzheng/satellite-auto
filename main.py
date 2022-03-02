@@ -23,6 +23,8 @@ from web3 import HTTPProvider, Web3
 
 ACCOUNT_RUN_COUNT = 1       # 一个账户操作次数
 RUN_ACCOUNT_COUNT = 3       # 操作账户个数
+START_INDEX = 14            # 指定开始账户index
+
 
 # terra lcd地址和chain id
 TERRA_LCD = "https://terra.stakesystems.io"
@@ -37,9 +39,9 @@ POLYGON_SATELLITE_CONTRACT = "0xa17927fb75e9faea10c08259902d0468b3dead88"
 
 
 # polygon 账户private key
-POLYGON_ACCOUNT_PRIVATE_KEY = ""
+POLYGON_ACCOUNT_PRIVATE_KEY = "587b1afccc40e18542880e228380ca29a96ba1ddda6e21687046166895386c4c"
 # terra 账户助记词
-TERRA_ACCOUNT_MNEMONIC = ""
+TERRA_ACCOUNT_MNEMONIC = "tennis shrug expire pet alarm element snow engage lawn perfect lottery whale"
 
 
 """
@@ -82,8 +84,9 @@ def get_asset_address(private_key, terra_address = ""):
 
 """
     发送Luna余额
+    check:检测luna是否到账，默认检测
 """
-def send_luna(sender_key, to_address):
+def send_luna(sender_key, to_address, check = 1):
     terra = LCDClient(chain_id = TERRA_CHAIN_ID, url = TERRA_LCD)
 
     sender = terra.wallet(sender_key)
@@ -98,7 +101,7 @@ def send_luna(sender_key, to_address):
             print(current_luna_balance)
             if luna_balance == 0:
                 luna_balance = current_luna_balance
-            elif current_luna_balance > luna_balance:
+            elif current_luna_balance > luna_balance or (not check):
                 luna_balance = current_luna_balance
                 print("luna已到账")
                 break
@@ -301,11 +304,39 @@ def write(index,account):
     with open("account.json","w") as f:
         json.dump(load_dict,f)
 
+"""
+    从指定index账户转账回index=0账户
+"""
+def send_back_account0(index):
+    print("开始将余额转回第一个账号...")
+    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
+    first_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = 0)
+    send_luna(sender_key, first_key.acc_address, 0)
+    print("转账成功")
+
+"""
+    获取打印指定indx账户的余额
+"""
+def get_terra_balance(index):
+    terra = LCDClient(chain_id = TERRA_CHAIN_ID, url = TERRA_LCD)
+    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
+    # # 初始化钱包
+    sender = terra.wallet(sender_key)
+    # 获取余额
+    luna_balance = 0
+    print(sender.key.acc_address)
+    balance_info = terra.bank.balance(sender.key.acc_address)
+    print(balance_info)
+    if len(balance_info[0]) > 0 and balance_info[0].get("uluna") != None:
+        luna_balance = (int)(balance_info[0].get("uluna").amount)
+        print("账户余额: " + str(luna_balance) + "uluna")
+
+
 def run(account_index):
     sender_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account=0, index=account_index)
 
     # 判断是否首个账号，如果不是，就从上一个账号转钱到当前账号操作
-    if account_index > 0:
+    if account_index > START_INDEX:
         print("开始从上一个账号转账到当前账号...")
         last_sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = account_index-1)
         send_luna(last_sender_key, sender_key.acc_address)
@@ -340,6 +371,7 @@ def run(account_index):
    
 def main():
     for account_index in range(RUN_ACCOUNT_COUNT):
+        account_index = account_index + START_INDEX
         print("操作账户index:" + str(account_index))
         for i in range(ACCOUNT_RUN_COUNT):
             run(account_index)
@@ -356,5 +388,14 @@ def main():
     print("转账成功")
 
     print("脚本执行完成，剩余LUNA将在account.json最后一个账号，由于跨链需要时间，请耐心等待！")
+
+
+
 main()
 
+# get_terra_balance(14)
+
+
+
+
+# send_luna_from_polygon_to_terra('terra10gp74wenujlq80qstv80t6l72pefr6j68exfs8')
