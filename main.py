@@ -39,9 +39,9 @@ POLYGON_SATELLITE_CONTRACT = "0xa17927fb75e9faea10c08259902d0468b3dead88"
 
 
 # polygon 账户private key
-POLYGON_ACCOUNT_PRIVATE_KEY = "587b1afccc40e18542880e228380ca29a96ba1ddda6e21687046166895386c4c"
+POLYGON_ACCOUNT_PRIVATE_KEY = ""
 # terra 账户助记词
-TERRA_ACCOUNT_MNEMONIC = "tennis shrug expire pet alarm element snow engage lawn perfect lottery whale"
+TERRA_ACCOUNT_MNEMONIC = ""
 
 
 """
@@ -307,11 +307,11 @@ def write(index,account):
 """
     从指定index账户转账回index=0账户
 """
-def send_back_account0(index):
-    print("开始将余额转回第一个账号...")
+def send_to_account(index,toindex):
+    print("开始将余额从账户" + index + "转回账户" + toindex + "...")
     sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
-    first_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = 0)
-    send_luna(sender_key, first_key.acc_address, 0)
+    revice_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = toindex)
+    send_luna(sender_key, revice_key.acc_address, 0)
     print("转账成功")
 
 """
@@ -325,6 +325,7 @@ def get_terra_balance(index):
     # 获取余额
     luna_balance = 0
     print(sender.key.acc_address)
+    
     balance_info = terra.bank.balance(sender.key.acc_address)
     print(balance_info)
     if len(balance_info[0]) > 0 and balance_info[0].get("uluna") != None:
@@ -381,21 +382,10 @@ def main():
             #     print(repr(e))
 
     # 将最后一个账户的余额转回第一个账户
-    print("开始将余额转回第一个账号...")
-    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = RUN_ACCOUNT_COUNT - 1)
-    first_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = 0)
-    send_luna(sender_key, first_key.acc_address)
-    print("转账成功")
+    send_to_account(RUN_ACCOUNT_COUNT - 1, 0)
 
     print("脚本执行完成，剩余LUNA将在account.json最后一个账号，由于跨链需要时间，请耐心等待！")
 
 
 
 main()
-
-# get_terra_balance(14)
-
-
-
-
-# send_luna_from_polygon_to_terra('terra10gp74wenujlq80qstv80t6l72pefr6j68exfs8')
