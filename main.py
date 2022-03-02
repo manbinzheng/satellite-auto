@@ -22,9 +22,8 @@ from terra_sdk.core.numeric import Numeric
 from web3 import HTTPProvider, Web3
 
 ACCOUNT_RUN_COUNT = 1       # 一个账户操作次数
-RUN_ACCOUNT_COUNT = 3       # 操作账户个数
-START_INDEX = 14            # 指定开始账户index
-
+RUN_ACCOUNT_COUNT = 3      # 操作账户个数
+START_INDEX = 0             # 指定开始账户index
 
 # terra lcd地址和chain id
 TERRA_LCD = "https://terra.stakesystems.io"
@@ -54,20 +53,24 @@ TERRA_ACCOUNT_MNEMONIC = ""
 def get_asset_address(private_key, terra_address = ""):
     # 使用cfscrape库绕过cloudflare
     scraper = cfscrape.create_scraper()
-
-    # 请求otc和validationMsg
-    url = "https://bridge-rest-server.mainnet.axelar.dev/getOneTimeCode?publicAddress=0x6A8C82AB24Fa054AE4B749A943468E5C62a23B36"
+    
+    # 初始化ethAccount
+    account = Account.privateKeyToAccount(private_key)
+    # 获得public_address
+    public_address = account._address
+    
+    # 根据public_address请求otc和validationMsg
+    url = "https://bridge-rest-server.mainnet.axelar.dev/getOneTimeCode?publicAddress=" + public_address
     res = scraper.get(url).content
+    print(res)
     json_ret = json.loads(res)
     
-    # 初始化ethAccount并对validationMsg进行签名
-    account = Account.privateKeyToAccount(private_key)
+    # 对validationMsg进行签名
     ret = account.sign_message(encode_defunct(text=json_ret['validationMsg']))
 
-    # 获得signature、otc、public_address、trace_id
+    # 获得signature、otc、trace_id
     signature = ret.signature.hex()
     otc = json_ret['otc']
-    public_address = account._address
     trace_id = str(uuid.uuid4())
 
     # 模拟请求，获取目标assetAddress
@@ -84,7 +87,6 @@ def get_asset_address(private_key, terra_address = ""):
 
 """
     发送Luna余额
-    check:检测luna是否到账，默认检测
 """
 def send_luna(sender_key, to_address, check = 1):
     terra = LCDClient(chain_id = TERRA_CHAIN_ID, url = TERRA_LCD)
@@ -304,35 +306,6 @@ def write(index,account):
     with open("account.json","w") as f:
         json.dump(load_dict,f)
 
-"""
-    从指定index账户转账回index=0账户
-"""
-def send_to_account(index,toindex):
-    print("开始将余额从账户" + index + "转回账户" + toindex + "...")
-    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
-    revice_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = toindex)
-    send_luna(sender_key, revice_key.acc_address, 0)
-    print("转账成功")
-
-"""
-    获取打印指定indx账户的余额
-"""
-def get_terra_balance(index):
-    terra = LCDClient(chain_id = TERRA_CHAIN_ID, url = TERRA_LCD)
-    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
-    # # 初始化钱包
-    sender = terra.wallet(sender_key)
-    # 获取余额
-    luna_balance = 0
-    print(sender.key.acc_address)
-    
-    balance_info = terra.bank.balance(sender.key.acc_address)
-    print(balance_info)
-    if len(balance_info[0]) > 0 and balance_info[0].get("uluna") != None:
-        luna_balance = (int)(balance_info[0].get("uluna").amount)
-        print("账户余额: " + str(luna_balance) + "uluna")
-
-
 def run(account_index):
     sender_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account=0, index=account_index)
 
@@ -382,10 +355,34 @@ def main():
             #     print(repr(e))
 
     # 将最后一个账户的余额转回第一个账户
-    send_to_account(RUN_ACCOUNT_COUNT - 1, 0)
+    print("开始将余额转回第一个账号...")
+    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = RUN_ACCOUNT_COUNT - 1)
+    first_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = 0)
+    send_luna(sender_key, first_key.acc_address)
+    print("转账成功")
 
     print("脚本执行完成，剩余LUNA将在account.json最后一个账号，由于跨链需要时间，请耐心等待！")
 
+def send_back_account0(index):
+    print("开始将余额转回第一个账号...")
+    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
+    first_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = 0)
+    send_luna(sender_key, first_key.acc_address, 0)
+    print("转账成功")
 
+def get_terra_balance(index):
+    terra = LCDClient(chain_id = TERRA_CHAIN_ID, url = TERRA_LCD)
+    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
+    # # 初始化钱包
+    sender = terra.wallet(sender_key)
+    # 获取余额
+    luna_balance = 0
+    print(sender.key.acc_address)
+    print(sender_key.private_key.hex())
+    balance_info = terra.bank.balance(sender.key.acc_address)
+    print(balance_info)
+    if len(balance_info[0]) > 0 and balance_info[0].get("uluna") != None:
+        luna_balance = (int)(balance_info[0].get("uluna").amount)
+        print("账户余额: " + str(luna_balance) + "uluna")
 
 main()
