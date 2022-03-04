@@ -36,16 +36,22 @@ pip3 install -r requirements.txt
 
 #### 2. 脚本配置
 
-- 在main.py顶部找到以下变量
+- 复制或者重命名目录下的.env.template，生成.env文件，配置以下变量
 ```bash
+# 一个账户操作次数
+ACCOUNT_RUN_COUNT = 1
 
+# 操作账户个数
+RUN_ACCOUNT_COUNT = 3
 
-ACCOUNT_RUN_COUNT = 1  # 一个账户操作次数
-RUN_ACCOUNT_COUNT = 3  # 操作账户个数
+# 指定开始账户index
+START_INDEX = 0
 
+# polygon 账户private key
+POLYGON_ACCOUNT_PRIVATE_KEY = ""
 
-POLYGON_ACCOUNT_PRIVATE_KEY = ""  # Polygon 账户private key
-TERRA_ACCOUNT_MNEMONIC = ""  # Terra 账户助记词
+# terra 账户助记词
+TERRA_ACCOUNT_MNEMONIC = ""   
 ```
 
 #### 3. 执行脚本
