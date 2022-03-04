@@ -21,24 +21,35 @@ from terra_sdk.core.numeric import Numeric
 
 from web3 import HTTPProvider, Web3
 
-ACCOUNT_RUN_COUNT = 1       # 一个账户操作次数
-RUN_ACCOUNT_COUNT = 3      # 操作账户个数
-START_INDEX = 0             # 指定开始账户index
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
 
-# terra lcd地址和chain id
-TERRA_LCD = "https://terra.stakesystems.io"
+# 一个账户操作次数
+ACCOUNT_RUN_COUNT = int(os.getenv("ACCOUNT_RUN_COUNT"))
+
+# 操作账户个数
+RUN_ACCOUNT_COUNT = int(os.getenv("RUN_ACCOUNT_COUNT"))
+
+# 指定开始账户index   
+START_INDEX = int(os.getenv("START_INDEX"))
+
+# terra lcd地址
+TERRA_LCD = os.getenv("TERRA_LCD")
+
+#terra chain id
 TERRA_CHAIN_ID = "columbus-5"
 
 # polygon rpc地址
-POLYGON_RPC = "https://matic-mainnet.chainstacklabs.com" 
+POLYGON_RPC = os.getenv("POLYGON_RPC")
 
 # polygon上satellite luna跨链交易合约
-POLYGON_SATELLITE_CONTRACT = "0xa17927fb75e9faea10c08259902d0468b3dead88" 
+POLYGON_SATELLITE_CONTRACT = "0xa17927fb75e9faea10c08259902d0468b3dead88"
 
 # polygon 账户private key
-POLYGON_ACCOUNT_PRIVATE_KEY = ""
+POLYGON_ACCOUNT_PRIVATE_KEY = os.getenv("POLYGON_ACCOUNT_PRIVATE_KEY")
+
 # terra 账户助记词
-TERRA_ACCOUNT_MNEMONIC = ""
+TERRA_ACCOUNT_MNEMONIC = os.getenv("TERRA_ACCOUNT_MNEMONIC")
 
 
 """
@@ -340,7 +351,7 @@ def run(account_index):
     if to_terra_ret != None:
         write(account_index, sender_key.private_key.hex())
     
-   
+
 def main():
     for account_index in range(RUN_ACCOUNT_COUNT):
         account_index = account_index + START_INDEX
@@ -361,13 +372,9 @@ def main():
 
     print("脚本执行完成，剩余LUNA将在account.json最后一个账号，由于跨链需要时间，请耐心等待！")
 
-def send_back_account0(index):
-    print("开始将余额转回第一个账号...")
-    sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
-    first_key = MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = 0)
-    send_luna(sender_key, first_key.acc_address, 0)
-    print("转账成功")
-
+"""
+    获取助记词角标为index的账户余额
+"""
 def get_terra_balance(index):
     terra = LCDClient(chain_id = TERRA_CHAIN_ID, url = TERRA_LCD)
     sender_key =  MnemonicKey(mnemonic = TERRA_ACCOUNT_MNEMONIC, account = 0, index = index)
@@ -383,4 +390,9 @@ def get_terra_balance(index):
         luna_balance = (int)(balance_info[0].get("uluna").amount)
         print("账户余额: " + str(luna_balance) + "uluna")
 
-main()
+
+if __name__ == "__main__":
+    if not TERRA_LCD or not POLYGON_RPC or not ACCOUNT_RUN_COUNT or not RUN_ACCOUNT_COUNT or not POLYGON_ACCOUNT_PRIVATE_KEY or not TERRA_ACCOUNT_MNEMONIC:
+        print("请配置.env后重试！")
+        exit()
+    main()
